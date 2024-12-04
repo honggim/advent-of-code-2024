@@ -1,8 +1,7 @@
 package day02
 
 import (
-	"bufio"
-	"os"
+	"advent-of-code-2024/pkg/parser"
 	"strconv"
 	"strings"
 	"testing"
@@ -31,9 +30,18 @@ func TestDay02(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		levels, err := parseFile(tt.filepath, separator)
+		levels := make([][]int, 0)
+
+		lines, err := parser.Parse(tt.filepath)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
+		}
+		for _, line := range lines {
+			level, err := parseLine(line, separator)
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+			levels = append(levels, level)
 		}
 
 		t.Run(tt.name, func(t *testing.T) {
@@ -86,28 +94,6 @@ func TestPermutations(t *testing.T) {
 			}
 		}
 	}
-}
-
-func parseFile(filepath, separator string) ([][]int, error) {
-	f, err := os.Open(filepath)
-	if err != nil {
-		return nil, err
-	}
-
-	lines := make([][]int, 0)
-
-	scanner := bufio.NewScanner(f)
-	scanner.Split(bufio.ScanLines)
-	for scanner.Scan() {
-		line := scanner.Text()
-		nums, err := parseLine(line, separator)
-		if err != nil {
-			return nil, err
-		}
-		lines = append(lines, nums)
-	}
-
-	return lines, nil
 }
 
 func parseLine(line, separator string) ([]int, error) {
