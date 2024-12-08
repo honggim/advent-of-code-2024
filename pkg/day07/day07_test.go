@@ -3,15 +3,17 @@ package day07
 import (
 	"advent-of-code-2024/pkg/parser"
 	"math"
+	"strconv"
+	"strings"
 	"testing"
 )
 
 func TestDay07(t *testing.T) {
-	// t.Skip()
 	tests := []struct {
 		name     string
 		filepath string
-		fn       func([]string) int
+		// fn       func([]string) int
+		fn       func(int, []int) int
 		expected int
 	}{
 		{
@@ -46,12 +48,30 @@ func TestDay07(t *testing.T) {
 			if err != nil {
 				t.Errorf("unexpected err: %v", err)
 			}
-			actual := tt.fn(lines)
+
+			actual := 0
+			for _, line := range lines {
+				sum, sentence := parseLine(line)
+				nums := convertToInts(sentence, " ")
+
+				actual += tt.fn(sum, nums)
+			}
+
 			if actual != tt.expected {
 				t.Errorf("expected: %d, actual: %d", tt.expected, actual)
 			}
 		})
 	}
+}
+
+// assume well formed input
+// line: "83: 15 6"
+func parseLine(line string) (int, string) {
+	tokens := strings.Split(line, ": ")
+
+	sum, _ := strconv.Atoi(tokens[0])
+
+	return sum, tokens[1]
 }
 
 func TestHelpers(t *testing.T) {
