@@ -1,6 +1,7 @@
 package day07
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -15,7 +16,20 @@ func part1(lines []string) int {
 		sum, sentence := parseLine(line)
 		nums := convertToInts(sentence, " ")
 
-		total += check(sum, nums)
+		total += checkPart1(sum, nums)
+	}
+
+	return total
+}
+
+func part2(lines []string) int {
+	total := 0
+
+	for _, line := range lines {
+		sum, sentence := parseLine(line)
+		nums := convertToInts(sentence, " ")
+
+		total += checkPart2(sum, nums)
 	}
 
 	return total
@@ -44,7 +58,7 @@ func convertToInts(sentence, separator string) []int {
 	return nums
 }
 
-func check(sum int, nums []int) int {
+func checkPart1(sum int, nums []int) int {
 	queue := []int{nums[0]}
 
 	for i := 1; i < len(nums); i++ {
@@ -69,8 +83,35 @@ func check(sum int, nums []int) int {
 	return 0
 }
 
-/*
-	binary tree
-	left: add
-	right: multiply
-*/
+func checkPart2(sum int, nums []int) int {
+	queue := []int{nums[0]}
+
+	for i := 1; i < len(nums); i++ {
+		num := nums[i]
+		//TODO: newQueue := make([]int, len(queue) * 2)
+		newQueue := make([]int, 0)
+
+		for _, prev := range queue {
+			//TODO: optimize if val > sum
+			newQueue = append(newQueue, prev+num)
+			newQueue = append(newQueue, prev*num)
+			newQueue = append(newQueue, concatInts(prev, num))
+		}
+
+		queue = newQueue
+	}
+
+	for _, num := range queue {
+		if num == sum {
+			return sum
+		}
+	}
+	return 0
+}
+
+func concatInts(left, right int) int {
+	val := fmt.Sprintf("%d%d", left, right)
+	num, _ := strconv.Atoi(val)
+
+	return num
+}
