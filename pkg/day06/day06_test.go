@@ -7,24 +7,39 @@ import (
 
 func TestDay06(t *testing.T) {
 	tests := []struct {
+		name     string
 		filepath string
 		fn       func([][]rune, int, int) int
 		expected int
 	}{
 		{
+			name:     "part 1: example",
 			filepath: "example.txt",
 			fn:       part1,
 			expected: 41,
 		},
 		{
+			name:     "part 2: example",
+			filepath: "example.txt",
+			fn:       part2,
+			expected: 6,
+		},
+		{
+			name:     "part 1: input",
 			filepath: "input.txt",
 			fn:       part1,
 			expected: 4890,
 		},
+		{
+			name:     "part 2: input",
+			filepath: "input.txt",
+			fn:       part2,
+			expected: 1995,
+		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.filepath, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			lines, _ := parser.Parse(tt.filepath)
 			puzzle, x, y := parseLines(lines)
 
