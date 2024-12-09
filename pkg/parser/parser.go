@@ -32,3 +32,21 @@ func ParseIntoString(filepath string) (string, error) {
 
 	return string(data), nil
 }
+
+func ParseIntoRuneMatrix(filepath string) ([][]rune, error) {
+	f, err := os.Open(filepath)
+	if err != nil {
+		return nil, err
+	}
+
+	puzzle := make([][]rune, 0)
+
+	scanner := bufio.NewScanner(f)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		line := scanner.Text()
+		puzzle = append(puzzle, []rune(line))
+	}
+
+	return puzzle, nil
+}
