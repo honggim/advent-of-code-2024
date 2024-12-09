@@ -18,8 +18,7 @@ func part1(puzzle [][]rune) int {
 	hash := make(map[string]bool)
 
 	for _, antennaes := range mapAntennaToLocations(puzzle) {
-		locations := antinodes(antennaes)
-		fmt.Println(locations)
+		locations := antinodes(antennaes, 1)
 		for _, location := range locations {
 			if location.col < 0 || location.row < 0 {
 				continue
@@ -56,32 +55,73 @@ func mapAntennaToLocations(puzzle [][]rune) map[rune][]Point {
 	return hash
 }
 
-func antinodes(antennas []Point) []Point {
+func antinodes(
+	antennas []Point,
+	count int,
+) []Point {
 	locations := make([]Point, 0)
 
 	for i := 0; i < len(antennas); i++ {
-		first := antennas[i]
 		for j := i + 1; j < len(antennas); j++ {
-			second := antennas[j]
-
-			locations = append(locations, findAntinodeLocations(first, second)...)
+			newLocations := findAntinodeLocations(
+				antennas[i],
+				antennas[j],
+				count,
+			)
+			locations = append(locations, newLocations...)
 		}
 	}
 
 	return locations
 }
 
-func findAntinodeLocations(a, b Point) []Point {
-	colDiff := a.col - b.col
-	rowDiff := a.row - b.row
+func findAntinodeLocations(
+	a, b Point,
+	count int,
+) []Point {
+	locations := make([]Point, 0)
 
-	aPrime := a
-	aPrime.col += colDiff
-	aPrime.row += rowDiff
+	for i := 1; i <= count; i++ {
+		aPrime, bPrime := a, b
+		colDiff := i * (a.col - b.col)
+		rowDiff := i * (a.row - b.row)
 
-	bPrime := b
-	bPrime.col -= colDiff
-	bPrime.row -= rowDiff
+		aPrime.col += colDiff
+		aPrime.row += rowDiff
 
-	return []Point{aPrime, bPrime}
+		bPrime.col -= colDiff
+		bPrime.row -= rowDiff
+
+		locations = append(locations, aPrime, bPrime)
+	}
+
+	return locations
+}
+
+func part2(puzzle [][]rune) int {
+	rowMax := len(puzzle) - 1
+	colMax := len(puzzle[0]) - 1
+
+	hash := make(map[string]bool)
+
+	for _, antennaes := range mapAntennaToLocations(puzzle) {
+		// add antennae locations
+		for _, antennae := range antennaes {
+			hash[antennae.Token()] = true
+		}
+		// cheating since inputs are squares, i.e. 50x50
+		locations := antinodes(antennaes, len(puzzle))
+		for _, location := range locations {
+			if location.col < 0 || location.row < 0 {
+				continue
+			}
+			if location.col > colMax || location.row > rowMax {
+				continue
+			}
+
+			hash[location.Token()] = true
+		}
+	}
+
+	return len(hash)
 }

@@ -24,6 +24,24 @@ func TestDay8(t *testing.T) {
 			fn:       part1,
 			expected: 336,
 		},
+		{
+			name:     "part 2: example2",
+			filepath: "./example2.txt",
+			fn:       part2,
+			expected: 9,
+		},
+		{
+			name:     "part 2: example",
+			filepath: "./example.txt",
+			fn:       part2,
+			expected: 34,
+		},
+		{
+			name:     "part 1: input",
+			filepath: "./input.txt",
+			fn:       part2,
+			expected: 1131,
+		},
 	}
 
 	for _, tt := range tests {
