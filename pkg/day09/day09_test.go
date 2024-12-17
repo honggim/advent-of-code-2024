@@ -30,24 +30,24 @@ func TestDay09(t *testing.T) {
 		// 	fn:       part1,
 		// 	expected: 6386640365805,
 		// },
-		// {
-		// 	name:     "part 2: example",
-		// 	filepath: "./example.txt",
-		// 	// filepath: "./example_plus2.txt",
-		// 	fn:       part2,
-		// 	expected: 2858,
-		// },
 		{
 			name:     "part 2: example",
-			filepath: "./example_plus2.txt",
+			filepath: "./example.txt",
+			// filepath: "./example_plus2.txt",
 			fn:       part2,
-			expected: 3261,
+			expected: 2858,
 		},
+		// {
+		// 	name:     "part 2: example",
+		// 	filepath: "./example_plus2.txt",
+		// 	fn:       part2,
+		// 	expected: 3261,
+		// },
 		{
 			name:     "part 2: input",
 			filepath: "./input.txt",
 			fn:       part2,
-			expected: 2858, // 111371536186 is too low
+			expected: 6423258376982,
 		},
 	}
 

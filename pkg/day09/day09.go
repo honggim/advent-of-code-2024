@@ -92,90 +92,120 @@ func checksum(disk []string) int {
 }
 
 func part2(line string) int {
-	files := convertToPartitions(line)
+	nums := convertToIntArray(line)
+	files := converToPartitions(nums)
 	// printPartitions(files)
 
-	disk, replacementIndex := partitionsToString(files)
-	// fmt.Println(disk)
+	// go backward
+	for index := 1; len(files)-index > 0; index++ {
+		srcIndex := len(files) - index
 
-	for i := len(files) - 1; i >= 0; i-- {
-		file := files[i]
-		replacementIndex -= file.size
-
-		if file.val == emptyFile || file.occurences == 0 {
+		srcFile := files[srcIndex]
+		if srcFile.empty || srcFile.moved {
+			// fmt.Printf("ignoring file: %+v\n", srcFile)
+			// ignore these files
 			continue
 		}
 
-		freeSpace := strings.Repeat(emptyFile, file.size)
-		freeIndex := strings.Index(disk, freeSpace)
-		if freeIndex == -1 {
-			continue
-		}
-		if freeIndex < replacementIndex {
-			disk = replaceAtIndex(disk, replacementIndex, freeSpace)
+		// go forward
+		for dstIndex, dstFile := range files {
+			if dstIndex >= srcIndex {
+				// done checking
+				break
+			}
+			if !dstFile.empty {
+				continue
+			}
+			if dstFile.moved {
+				continue
+			}
+			if dstFile.length < srcFile.length {
+				continue
+			}
+			if dstFile.length == srcFile.length {
+				// swap
+				files[srcIndex].moved = true
+				files[dstIndex], files[srcIndex] = files[srcIndex], files[dstIndex]
+				// printPartitions(files)
+				break // dst loop
+			}
+			if dstFile.length > srcFile.length {
+				diff := dstFile.length - srcFile.length
 
-			replacement := strings.Repeat(file.val, file.occurences)
-			disk = replaceAtIndex(disk, freeIndex, replacement)
-			// fmt.Println(disk)
+				// swap
+				files[srcIndex].empty = true
+
+				files[dstIndex].empty = false
+				files[dstIndex].moved = true
+				files[dstIndex].length = srcFile.length
+				files[dstIndex].id = srcFile.id
+
+				// insert new empty partition
+				newFiles := append(files[:dstIndex+1], files[dstIndex:]...)
+				newFiles[dstIndex+1] = partition{
+					empty:  true,
+					moved:  false,
+					length: diff,
+				}
+				files = newFiles
+
+				// printPartitions(files)
+				break // dst loop
+			}
 		}
 	}
 
-	fmt.Println(disk)
-	stuff := strings.Split(disk, "")
-	return checksum(stuff)
-
-}
-
-func replaceAtIndex(s string, index int, replacement string) string {
-	return s[:index] + replacement + s[index+len(replacement):]
+	return checksumPartitions(files)
 }
 
 type partition struct {
-	val        string
-	size       int
-	occurences int
-	moved      bool
+	id     int
+	length int
+	empty  bool
+	moved  bool
 }
 
-func convertToPartitions(line string) []partition {
-	output := make([]partition, 0)
-	nums := strings.Split(line, "")
+func converToPartitions(lengths []int) []partition {
+	files := make([]partition, 0)
 
-	for index, num := range nums {
-		val := emptyFile
-		if index%2 == 0 {
-			val = strconv.Itoa(index / 2)
-		}
-		occurrences, _ := strconv.Atoi(num)
-		p := partition{
-			val:        val,
-			size:       occurrences * len(val),
-			occurences: occurrences,
+	for index, length := range lengths {
+		file := partition{
+			id:     index / 2,
+			length: length,
+			empty:  index%2 == 1, // odd indexes are empty
+			moved:  false,
 		}
 
-		output = append(output, p)
+		files = append(files, file)
 	}
 
-	return output
+	return files
 }
 
 func printPartitions(files []partition) {
 	for _, file := range files {
-		for i := 0; i < file.occurences; i++ {
-			fmt.Printf(file.val)
+		if file.empty {
+			fmt.Print(strings.Repeat(emptyFile, file.length))
+		} else {
+			fmt.Print(strings.Repeat(strconv.Itoa(file.id), file.length))
 		}
 	}
 	fmt.Println("")
 }
 
-func partitionsToString(disk []partition) (string, int) {
-	output := ""
-	chars := 0
-
-	for _, file := range disk {
-		output += strings.Repeat(file.val, file.occurences)
-		chars += file.size
+func checksumPartitions(files []partition) int {
+	sum := 0
+	index := 0
+	for _, file := range files {
+		if file.empty {
+			index += file.length
+			continue
+		}
+		for i := 0; i < file.length; i++ {
+			sum += (index + i) * file.id
+		}
+		index += file.length
 	}
 
-	return output, chars
+	return sum
 }
